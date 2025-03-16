@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
+{% load custom_filters %}  <!-- カスタムフィルタをロード -->
 
 {% block title %}カウント表{% endblock %}
+
 {% block style %}
     body {
         font-family: Arial, sans-serif;
@@ -22,14 +24,19 @@
     th {
         background-color: #f2f2f2;
     }
+
+    h2 {
+        margin-top: 20px;
+        color: #333;
+    }
 {% endblock %}
 
 {% block content %}
 
     <form method="POST">
         {% csrf_token %}
-        {% for category, products in categories.items %}
-            <h2>{{ category }}</h2>
+        {% for category_key, products in categories.items %}
+            <h2>{{ category_choices|get_item:category_key }}</h2>  <!-- カテゴリ名を表示 -->
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -49,8 +56,7 @@
                 </tbody>
             </table>
         {% endfor %}
-        <button type="submit" class="btn btn-primary">リストを生成</button>
+        <button type="submit" class="btn btn-primary mt-3">リストを更新</button>
     </form>
 
-    {% comment %} <a href="{% url 'products:product_display' %}" class="btn btn-info mt-3">送信</a> {% endcomment %}
 {% endblock %}

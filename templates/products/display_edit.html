@@ -1,61 +1,61 @@
 {% extends 'base.html' %}
-    {% block title %}並べ替え{% endblock %}
-    {% block style %}
-        /* スマホ対応 */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0 10px;
-            background-color: #f4f4f4;
-        }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+{% block title %}並べ替え{% endblock %}
 
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
+{% block style %}
+    /* スマホ対応 */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0 10px;
+        background-color: #f4f4f4;
+    }
 
-        th, td {
-            background-color: #ffffff;
-        }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
 
-        .product {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            /* 商品ごとのスタイル */
-        }
+    th, td {
+        padding: 8px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
 
-        button {
-            padding: 5px 10px;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            margin: 5px;
-            margin-left: 10px;
-            padding: 5px 10px;
-            cursor: pointer;
-        }
+    th, td {
+        background-color: #ffffff;
+    }
 
-        button:disabled {
-            background-color: #ddd;
-        }
+    .product {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        /* 商品ごとのスタイル */
+    }
 
-        @media screen and (max-width: 768px) {
-            table, th, td {
-                font-size: 14px;
-            }
+    button {
+        padding: 5px 10px;
+        cursor: pointer;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        margin: 5px;
+        margin-left: 10px;
+    }
+
+    button:disabled {
+        background-color: #ddd;
+    }
+
+    @media screen and (max-width: 768px) {
+        table, th, td {
+            font-size: 14px;
         }
-    {%endblock%}
+    }
+{% endblock %}
+
 {% block content %}
-
     <form method="post">
         {% csrf_token %}
         <table>
@@ -72,7 +72,7 @@
                         <td>{{ product.name }}</td>
                         <td>{{ product.get_category_display }}</td>
                         <td>
-                            <form method="post">
+                            <form method="post" action="{% url 'products:display_edit' %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="product_id" value="{{ product.id }}">
                                 <button type="submit" name="action" value="up">↑</button>
@@ -83,6 +83,6 @@
                 {% endfor %}
             </tbody>
         </table>
-        <button >並べ替えを保存</button>
+        <button type="submit">並べ替えを保存</button>
     </form>
 {% endblock %}
