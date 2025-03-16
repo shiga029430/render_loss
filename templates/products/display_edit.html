@@ -4,28 +4,6 @@
 
 {% block style %}
     /* スマホ対応 */
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0 10px;
-        background-color: #f4f4f4;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    th, td {
-        padding: 8px;
-        text-align: left;
-        border: 1px solid #ddd;
-    }
-
-    th, td {
-        background-color: #ffffff;
-    }
-
     .product {
         display: flex;
         justify-content: space-between;
@@ -63,6 +41,7 @@
                 <tr>
                     <th>商品名</th>
                     <th>カテゴリ</th>
+                    <th>並び順</th>
                     <th>操作</th>
                 </tr>
             </thead>
@@ -71,6 +50,7 @@
                     <tr>
                         <td>{{ product.name }}</td>
                         <td>{{ product.get_category_display }}</td>
+                        <td>{{ product.order }}</td>
                         <td>
                             <form method="post" action="{% url 'products:display_edit' %}">
                                 {% csrf_token %}

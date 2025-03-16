@@ -2,36 +2,56 @@
 {% load custom_filters %}  <!-- カスタムフィルタをロード -->
 
 {% block title %}カウント表{% endblock %}
-
 {% block style %}
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0 10px;
-        background-color: #f4f4f4;
-    }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    th, td {
-        padding: 8px;
-        text-align: left;
-        border: 1px solid #ddd;
+    /* トグルボタンのスタイル */
+    .counter-btn {
+        padding: 5px 10px;
+        margin: 0 2px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 18px;
+        cursor: pointer;
     }
 
-    th {
-        background-color: #f2f2f2;
+    .counter-btn.reset {
+        background-color: #f44336; /* リセットボタンは赤 */
     }
 
-    h2 {
-        margin-top: 20px;
-        color: #333;
+    .counter-btn:disabled {
+        background-color: #ddd;
+        cursor: not-allowed;
+    }
+
+    .counter-container {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .reset-all-btn {
+        margin: 10px 0;
+        padding: 8px 16px;
+        background-color: #ff5722;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 18px;
+        cursor: pointer;
+    }
+
+    input[type="number"] {
+        width: 60px;
+        text-align: center;
+        font-size: 18px;
     }
 {% endblock %}
 
 {% block content %}
+
+    <!-- すべてリセットボタン -->
+    <button type="button" class="reset-all-btn" onclick="resetAllQuantities()">すべてリセット</button>
 
     <form method="POST">
         {% csrf_token %}
@@ -49,7 +69,13 @@
                         <tr>
                             <td>{{ product.name }}</td>
                             <td>
-                                <input type="number" class="form-control" name="quantity_{{ product.id }}" value="{{ product.quantity }}" min="0">
+                                <div class="counter-container">
+                                    <button type="button" class="counter-btn reset" onclick="changeQuantity('{{ product.id }}', 0, true)">0にする</button>
+                                    <button type="button" class="counter-btn" onclick="changeQuantity('{{ product.id }}', -1)">-1</button>
+                                    <input type="number" id="quantity_{{ product.id }}" class="form-control" name="quantity_{{ product.id }}" value="{{ product.quantity }}" min="0">
+                                    <button type="button" class="counter-btn" onclick="changeQuantity('{{ product.id }}', 1)">+1</button>
+                                    <button type="button" class="counter-btn" onclick="changeQuantity('{{ product.id }}', 5)">+5</button>
+                                </div>
                             </td>
                         </tr>
                     {% endfor %}
@@ -58,5 +84,20 @@
         {% endfor %}
         <button type="submit" class="btn btn-primary mt-3">リストを更新</button>
     </form>
+
+    <script>
+        function changeQuantity(productId, amount, reset = false) {
+            const inputField = document.getElementById(`quantity_${productId}`);
+            let newValue = reset ? 0 : Math.max(0, (parseInt(inputField.value) || 0) + amount);  // 0未満にならないように
+            inputField.value = newValue;
+        }
+
+        function resetAllQuantities() {
+            const inputs = document.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => {
+                input.value = 0;
+            });
+        }
+    </script>
 
 {% endblock %}
