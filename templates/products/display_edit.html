@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+    {% block title %}並べ替え{% endblock %}
+    {% block style %}
+        /* スマホ対応 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0 10px;
+            background-color: #f4f4f4;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            background-color: #ffffff;
+        }
+
+        .product {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            /* 商品ごとのスタイル */
+        }
+
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            margin: 5px;
+            margin-left: 10px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background-color: #ddd;
+        }
+
+        @media screen and (max-width: 768px) {
+            table, th, td {
+                font-size: 14px;
+            }
+        }
+    {%endblock%}
+{% block content %}
+
+    <form method="post">
+        {% csrf_token %}
+        <table>
+            <thead>
+                <tr>
+                    <th>商品名</th>
+                    <th>カテゴリ</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                    <tr>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.get_category_display }}</td>
+                        <td>
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="product_id" value="{{ product.id }}">
+                                <button type="submit" name="action" value="up">↑</button>
+                                <button type="submit" name="action" value="down">↓</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button >並べ替えを保存</button>
+    </form>
+{% endblock %}

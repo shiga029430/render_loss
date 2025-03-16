@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}今日のロス一覧{% endblock %}
+{% block style %}
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0 10px;
+        background-color: #f4f4f4;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 8px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+{% endblock %}
+
+{% block content %}
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th style="width:30%">カテゴリ</th>
+                <th style="width:40%">商品名</th>
+                <th style="width:30%">数量</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+                <tr>
+                    <td>{{ product.get_category_display }}</td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.quantity }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3">今日のロスはありません。</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'products:product_list' %}" class="btn btn-info">商品リストに戻る</a>
+{% endblock %}

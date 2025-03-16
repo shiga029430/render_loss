@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}カウント表{% endblock %}
+{% block style %}
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0 10px;
+        background-color: #f4f4f4;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 8px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+{% endblock %}
+
+{% block content %}
+
+    <form method="POST">
+        {% csrf_token %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>商品名</th>
+                    <th>個数</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                    <tr>
+                        <td>{{ product.name }}</td>
+                        <td>
+                            <input type="number" class="form-control" name="quantity_{{ product.id }}" value="{{ product.quantity }}" min="0">
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-primary">リストを生成</button>
+    </form>
+
+    {% comment %} <a href="{% url 'products:product_display' %}" class="btn btn-info mt-3">送信</a> {% endcomment %}
+{% endblock %}
