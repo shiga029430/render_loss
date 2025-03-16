@@ -15,7 +15,7 @@ class Product(models.Model):
     name = models.CharField(max_length=100)
     category = models.CharField(max_length=2, choices=CATEGORY_CHOICES, default='1')  # CharFieldを使用
     order = models.IntegerField(default=0, editable=False)  # 並べ替え用の順番フィールド
-    quantity = models.PositiveIntegerField(default=0)
+    quantity = models.PositiveIntegerField(default=0, editable=False)  # 在庫数
 
     def save(self, *args, **kwargs):
         # 新規作成の場合のみorderを設定
