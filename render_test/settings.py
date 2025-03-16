@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 import environ
 from decouple import config
+import dj_database_url
 from dj_database_url import parse as dburl
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -62,6 +63,7 @@ default_dburl = "sqlite:///" + os.path.join(BASE_DIR, "db.sqlite3")
 
 DATABASES = {
     "default": config("DATABASE_URL", default=default_dburl, cast=dburl),
+    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
 }
 
 STATIC_URL = "/static/"

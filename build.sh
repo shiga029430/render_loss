@@ -8,6 +8,7 @@ pip install -r requirements.txt
 # データベースのリセット
 echo "Resetting database..."
 python manage.py flush --no-input  # データベースをリセットして全てのデータを削除
+python manage.py makemigrations  # マイグレーションファイルを作成
 python manage.py migrate  # マイグレーションを適用
 
 # 静的ファイルの収集
