@@ -36,7 +36,7 @@
     <form method="POST">
         {% csrf_token %}
         {% for category_key, products in categories.items %}
-            <h2>{{ category_choices|get_item:category_key }}</h2>  <!-- カテゴリ名を表示 -->
+            <h3>{{ category_choices|get_item:category_key }}</h3>  <!-- カテゴリ名を表示 -->
             <table class="table table-bordered">
                 <thead>
                     <tr>
