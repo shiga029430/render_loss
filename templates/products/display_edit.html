@@ -1,10 +1,9 @@
 {% extends 'base.html' %}
-{% load custom_filters %}  <!-- カスタムフィルタをロード -->
+{% load custom_filters %}
 
 {% block title %}リストの編集{% endblock %}
 
 {% block style %}
-    /* ボタンのスタイル */
     .move-btn {
         padding: 5px 10px;
         margin: 0 2px;
@@ -21,12 +20,21 @@
         cursor: not-allowed;
     }
 
-    /* カテゴリセクションのスタイル */
+    .delete-btn {
+        margin: 10px 0;
+        padding: 8px 16px;
+        background-color: #ff5722;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 18px;
+        cursor: pointer;
+    }
+
     .category-section {
         margin: 20px 0;
     }
 
-    /* カテゴリ名と追加ボタンの配置 */
     .category-header {
         display: flex;
         justify-content: space-between;
@@ -34,13 +42,11 @@
         margin-bottom: 5px;
     }
 
-    /* カテゴリ名を囲むスタイル */
     h3 {
         margin: 0;
         font-size: 24px;
     }
 
-    /* 商品追加ボタンのスタイル */
     .add-btn {
         margin-left: 10px;
         padding: 5px 10px;
@@ -59,16 +65,17 @@
     {% for category_key, products in categories.items %}
         <div class="category-section">
             <div class="category-header">
-                <h3>{{ category_choices|get_item:category_key }}</h3>
-                <!-- カテゴリ名の横に商品追加ボタン -->
-                <button type="button" class="add-btn" data-bs-toggle="modal" data-bs-target="#addModal" data-category="{{ category_key }}">+ 商品を追加</button>
+                <h3>
+                    {{ category_choices|get_item:category_key }}
+                    <button type="button" class="add-btn" data-bs-toggle="modal" data-bs-target="#addModal" data-category="{{ category_key }}">+ 商品を追加</button>
+                </h3>
             </div>
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th style="width:45%">商品名</th>
+                        <th style="width:30%">商品名</th>
                         <th style="width:15%">並び順</th>
-                        <th style="width:50%">操作</th>
+                        <th style="width:55%">操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -79,54 +86,76 @@
                             <td>
                                 <form method="post" action="{% url 'products:display_edit' %}">
                                     {% csrf_token %}
-                                    <input type="hidden" name="category" value="{{ category_key }}">  <!-- カテゴリを隠しフィールドで送信 -->
+                                    <input type="hidden" name="category" value="{{ category_key }}">
                                     <input type="hidden" name="product_id" value="{{ product.id }}">
                                     <button type="submit" name="action" value="up" class="move-btn">↑</button>
                                     <button type="submit" name="action" value="down" class="move-btn">↓</button>
+                                    <button type="button" class="delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal{{ product.id }}">削除</button>
                                 </form>
                             </td>
                         </tr>
+
+                        <!-- 商品削除モーダル -->
+                        <div class="modal fade" id="deleteModal{{ product.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ product.id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalLabel{{ product.id }}">商品を削除</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        本当に商品「{{ product.name }}」を削除しますか？
+                                    </div>
+                                    <div class="modal-footer">
+                                        <form method="post" action="{% url 'products:delete_product' product.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger">削除</button>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     {% endfor %}
-    <button type="submit" class="btn btn-primary mt-3">並べ替えを保存</button>
 </form>
 
-    <!-- 商品追加モーダル -->
-    <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addModalLabel">商品を追加</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="category" id="addCategory">
-                        <input type="hidden" name="action" value="add">
-                        <div class="mb-3">
-                            <label for="product_name" class="form-label">商品名</label>
-                            <input type="text" class="form-control" id="product_name" name="product_name" placeholder="商品名" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">追加</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                    </form>
-                </div>
+<!-- 商品追加モーダル -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">商品を追加</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'products:display_edit' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="category" id="addCategory">
+                    <input type="hidden" name="action" value="add">
+                    <div class="mb-3">
+                        <label for="product_name" class="form-label">商品名</label>
+                        <input type="text" class="form-control" id="product_name" name="product_name" placeholder="商品名" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">追加</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                </form>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        // モーダルを開くときにカテゴリを設定する
-        var addModal = document.getElementById('addModal');
-        addModal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget;  // ボタンの参照
-            var category = button.getAttribute('data-category');  // ボタンからカテゴリを取得
-            var categoryInput = document.getElementById('addCategory');
-            categoryInput.value = category;  // モーダル内のhiddenフィールドにカテゴリを設定
-        });
-    </script>
+<script>
+    // 商品追加モーダルを開くときにカテゴリを設定する
+    var addModal = document.getElementById('addModal');
+    addModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var category = button.getAttribute('data-category');
+        var categoryInput = document.getElementById('addCategory');
+        categoryInput.value = category;
+    });
+</script>
 {% endblock %}
