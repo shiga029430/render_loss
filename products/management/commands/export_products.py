@@ -15,5 +15,5 @@ class Command(BaseCommand):
         with open(file_path, 'w', encoding='utf-8') as file:
             writer = csv.writer(file)
             for product in products:
-                writer.writerow([product.name, product.category, product.quantity])
+                writer.writerow([product.name, product.category])
         self.stdout.write(self.style.SUCCESS('Successfully exported products to file'))
