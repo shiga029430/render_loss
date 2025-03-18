@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.views import View
 from django.views.generic import TemplateView
 from django.db import transaction
@@ -69,6 +69,7 @@ class DisplayEditView(View):
 
             # カテゴリ内の商品だけを対象に並べ替えを行う
             if category:
+                
                 # 上に移動する処理
                 if action == 'up' and product.order > 1:
                     swap_product = Product.objects.filter(category=category, order__lt=product.order).order_by('-order').first()
@@ -89,3 +90,8 @@ class DisplayEditView(View):
             pass
 
         return redirect('products:display_edit')  # 並べ替え後にこのページを再表示
+    
+def delete_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    product.delete()
+    return redirect('products:display_edit')
