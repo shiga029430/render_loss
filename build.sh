@@ -16,3 +16,6 @@ python manage.py collectstatic --no-input
 
 # スーパーユーザーを自動で作成する
 python manage.py superuser
+
+# デフォルトのパンの登録
+python manage.py load_products ./products.txt
