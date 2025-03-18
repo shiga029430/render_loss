@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views import View
 from django.views.generic import TemplateView
+from django.core.management import call_command
 from django.db import transaction
 from django.db import models
 from .models import Product, CATEGORY_CHOICES
@@ -62,36 +63,46 @@ class DisplayEditView(View):
         if action == 'add' and category and product_name:
             max_order = Product.objects.filter(category=category).aggregate(models.Max('order'))['order__max'] or 0
             Product.objects.create(name=product_name, category=category, order=max_order + 1)
-            return redirect('products:display_edit')
+        elif action == 'delete' and product_id:
+            product = get_object_or_404(Product, id=product_id)
+            product.delete()
+            Product.update_order_for_category(category)
+        else:
+            
+            # return redirect('products:display_edit')
 
-        try:
-            product = Product.objects.get(id=product_id)
+            try:
+                product = Product.objects.get(id=product_id)
 
-            # カテゴリ内の商品だけを対象に並べ替えを行う
-            if category:
-                
-                # 上に移動する処理
-                if action == 'up' and product.order > 1:
-                    swap_product = Product.objects.filter(category=category, order__lt=product.order).order_by('-order').first()
-                    if swap_product:
-                        product.order, swap_product.order = swap_product.order, product.order
-                        product.save()
-                        swap_product.save()
+                # カテゴリ内の商品だけを対象に並べ替えを行う
+                if category:
+                    
+                    # 上に移動する処理
+                    if action == 'up' and product.order > 1:
+                        swap_product = Product.objects.filter(category=category, order__lt=product.order).order_by('-order').first()
+                        if swap_product:
+                            product.order, swap_product.order = swap_product.order, product.order
+                            product.save()
+                            swap_product.save()
 
-                # 下に移動する処理
-                elif action == 'down':
-                    swap_product = Product.objects.filter(category=category, order__gt=product.order).order_by('order').first()
-                    if swap_product:
-                        product.order, swap_product.order = swap_product.order, product.order
-                        product.save()
-                        swap_product.save()
+                    # 下に移動する処理
+                    elif action == 'down':
+                        swap_product = Product.objects.filter(category=category, order__gt=product.order).order_by('order').first()
+                        if swap_product:
+                            product.order, swap_product.order = swap_product.order, product.order
+                            product.save()
+                            swap_product.save()
 
-        except Product.DoesNotExist:
-            pass
-
+            except Product.DoesNotExist:
+                pass
+        
+        call_command('export_products', 'products.txt')
         return redirect('products:display_edit')  # 並べ替え後にこのページを再表示
     
 def delete_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
+    category = product.category
     product.delete()
+    product.update_order_for_category(category)
+    call_command('export_products', 'products.txt')
     return redirect('products:display_edit')
