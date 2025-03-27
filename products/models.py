@@ -27,6 +27,12 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.get_category_display()})"  # カテゴリー名を表示
+    
+    def delete(self, *args, **kwargs):
+        # 削除時にorderを整理
+        category = self.category
+        super().delete(*args, **kwargs)
+        Product.update_order_for_category(category)
 
     @staticmethod
     def update_order_for_category(category):

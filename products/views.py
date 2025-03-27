@@ -40,9 +40,9 @@ class ProductDisplayView(TemplateView):
 
 class DisplayEditView(View):
     def get(self, request):
-        products = Product.objects.all().order_by('order')  # 商品をorder順に並べる
+        products = Product.objects.all().order_by('order')
         categories = {key: [] for key, _ in CATEGORY_CHOICES}
-        
+
         for product in products:
             categories[product.category].append(product)
 
@@ -51,53 +51,158 @@ class DisplayEditView(View):
             'categories': categories,
             'category_choices': dict(CATEGORY_CHOICES),
         })
-    
 
+    # @transaction.atomic
     def post(self, request):
-        # 隠しフィールドで送信された product_id と action を受け取る
-        product_id = request.POST.get('product_id')  # 商品ID
-        action = request.POST.get('action')  # 'up' または 'down'
-        category = request.POST.get('category')  # カテゴリ
+        print("postデータ",request.POST)
+        action = request.POST.get('action')
+        category = request.POST.get('category')
         product_name = request.POST.get('product_name')
         
         if action == 'add' and category and product_name:
             max_order = Product.objects.filter(category=category).aggregate(models.Max('order'))['order__max'] or 0
-            Product.objects.create(name=product_name, category=category, order=max_order + 1)
-        elif action == 'delete' and product_id:
-            product = get_object_or_404(Product, id=product_id)
-            product.delete()
-            Product.update_order_for_category(category)
-        else:
+            new_product = Product.objects.create(name=product_name, category=category, order=max_order + 1)
+            print(f"new_product: {new_product}")
+            return redirect('products:display_edit')
             
-            # return redirect('products:display_edit')
-
-            try:
-                product = Product.objects.get(id=product_id)
-
-                # カテゴリ内の商品だけを対象に並べ替えを行う
-                if category:
-                    
-                    # 上に移動する処理
-                    if action == 'up' and product.order > 1:
-                        swap_product = Product.objects.filter(category=category, order__lt=product.order).order_by('-order').first()
-                        if swap_product:
-                            product.order, swap_product.order = swap_product.order, product.order
-                            product.save()
-                            swap_product.save()
-
-                    # 下に移動する処理
-                    elif action == 'down':
-                        swap_product = Product.objects.filter(category=category, order__gt=product.order).order_by('order').first()
-                        if swap_product:
-                            product.order, swap_product.order = swap_product.order, product.order
-                            product.save()
-                            swap_product.save()
-
-            except Product.DoesNotExist:
-                pass
         
+        if action == 'reorder':
+            with transaction.atomic():
+                for key, value in request.POST.items():
+                    if not key.startswith('orders[') or not key.endswith(']'):
+                        continue
+                    try:
+                        product_id = int(key.replace('orders[','').replace(']',''))
+                        new_order_input = int(value)
+                        
+                        product = Product.objects.get(id=product_id)
+                        old_order = product.order
+                        category = product.category
+                        
+                        max_order = Product.objects.filter(category=category).count()
+                        
+                        want_last_position = (new_order_input >= max_order)
+                        # new_order = max(1,min(new_order, max_order))
+                       
+                        if want_last_position:
+                            if old_order == max_order:
+                                continue
+                            Product.objects.filter(
+                                category=category,
+                                order__gt=old_order,
+                                order__lte=max_order
+                            ).update(order=models.F('order') - 1)
+                            
+                            product.order = max_order
+                            product.save()
+                        else:
+                            new_order = max(1,min(new_order_input, max_order))
+                            
+                            if old_order == new_order:
+                                continue
+                            
+                            if old_order > new_order:
+                                Product.objects.filter(
+                                    category=category,
+                                    order__lt=old_order,
+                                    order__gte=new_order
+                                ).update(order=models.F('order') + 1)
+                            elif old_order < new_order:
+                                Product.objects.filter(
+                                    category=category,
+                                    order__gt=old_order,
+                                    order__lte=new_order
+                                ).update(order=models.F('order') - 1)
+                            product.order = new_order
+                            product.save()
+                    except(ValueError, Product.DoesNotExist):
+                        continue
+                # call_command('export_products', 'products.txt')
+            return redirect('products:display_edit')
+        
+        if '-' in action:
+            action, product_id = action.split('-')
+        else:
+            product_id = request.POST.get('product_id')
+        # product_id = request.POST.get('product_id')
+            
+        category = request.POST.get('category')
+        product_name = request.POST.get('product_name')
+        new_order = request.POST.get('new_order')
+
+        try:
+            product = Product.objects.get(id=product_id)
+
+            # 上下移動の処理
+            if action == 'up' and product.order > 1:
+                swap_product = Product.objects.filter(
+                    category=product.category,
+                    order__lt=product.order
+                ).order_by('-order').first()
+                if swap_product:
+                    product.order, swap_product.order = swap_product.order, product.order
+                    product.save()
+                    swap_product.save()
+
+            elif action == 'down':
+                swap_product = Product.objects.filter(
+                    category=product.category,
+                    order__gt=product.order
+                ).order_by('order').first()
+                if swap_product:
+                    product.order, swap_product.order = swap_product.order, product.order
+                    product.save()
+                    swap_product.save()
+
+            # 順番変更処理（直接入力対応）
+            elif action == 'reorder' and new_order:
+                try:
+                    new_order = int(new_order)
+                except ValueError:
+                    new_order = product.order
+                    
+                max_order = Product.objects.filter(category=product.category).count()
+                if new_order < 1:
+                    new_order = 1
+                elif new_order > max_order:
+                    new_order = max_order
+
+                with transaction.atomic():
+                    # 他の商品をシフトする
+                    if product.order > new_order:
+                        Product.objects.filter(
+                            category=product.category,
+                            order__lt=product.order,
+                            order__gte=new_order
+                        ).update(order=models.F('order') + 1)
+                    elif product.order < new_order:
+                        Product.objects.filter(
+                            category=product.category,
+                            order__gt=product.order,
+                            order__lte=new_order
+                        ).update(order=models.F('order') - 1)
+
+                    # 商品の順番を更新
+                    product.order = new_order
+                    product.save()
+
+            # 商品追加処理
+            elif action == 'add' and category and product_name:
+                max_order = Product.objects.filter(category=category).aggregate(models.Max('order'))['order__max'] or 0
+                new_product = Product.objects.create(name=product_name, category=category, order=max_order + 1)
+                print(f"new_product: {new_product}")
+                return redirect('products:display_edit')
+
+            # 商品削除処理
+            elif action == 'delete' and product_id:
+                product.delete()
+
+        except Product.DoesNotExist:
+            pass
+
         call_command('export_products', 'products.txt')
-        return redirect('products:display_edit')  # 並べ替え後にこのページを再表示
+        return redirect('products:display_edit')
+
     
 def delete_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)

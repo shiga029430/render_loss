@@ -70,7 +70,7 @@
                             <td>{{ product.name }}</td>
                             <td>
                                 <div class="counter-container">
-                                    <button type="button" class="counter-btn reset" onclick="changeQuantity('{{ product.id }}', 0, true)">0にする</button>
+                                    <button type="button" class="counter-btn reset" onclick="changeQuantity('{{ product.id }}', 0, true)">0</button>
                                     <button type="button" class="counter-btn" onclick="changeQuantity('{{ product.id }}', -1)">-1</button>
                                     <input type="number" id="quantity_{{ product.id }}" class="form-control" name="quantity_{{ product.id }}" value="{{ product.quantity }}" min="0">
                                     <button type="button" class="counter-btn" onclick="changeQuantity('{{ product.id }}', 1)">+1</button>
