@@ -9,7 +9,7 @@ from .models import Product, CATEGORY_CHOICES
 class ProductListView(View):
     def get(self, request, *args, **kwargs):
         categories = {key: [] for key, _ in CATEGORY_CHOICES}
-        products = Product.objects.all()
+        products = Product.objects.all().order_by('order')
         for product in products:
             categories[product.category].append(product)
         return render(request, 'products/product_list.html', {
@@ -35,7 +35,7 @@ class ProductDisplayView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # 数量が1以上の商品をフィルタリングして表示
-        context['products'] = Product.objects.filter(quantity__gte=1)
+        context['products'] = Product.objects.filter(quantity__gte=1).order_by('category', 'order')
         return context
 
 class DisplayEditView(View):
