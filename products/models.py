@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import date
 
 CATEGORY_CHOICES = [
     ('1', '菓子パン'),
@@ -26,7 +27,7 @@ class Product(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.name} ({self.get_category_display()})"  # カテゴリー名を表示
+        return f"{self.name} ({self.get_category_display()})*{self.quantity}"  # カテゴリー名を表示
     
     def delete(self, *args, **kwargs):
         # 削除時にorderを整理
@@ -41,3 +42,12 @@ class Product(models.Model):
         for idx, product in enumerate(products):
             product.order = idx + 1
             product.save()
+            
+class Loss(models.Model):
+    products = models.ManyToManyField(Product, related_name='losses')
+    date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        # 関連する商品の名前をカンマ区切りで表示
+        product_names = ", ".join([product.name for product in self.products.all()])
+        return f"ロス記録 ({self.date}): {product_names}"
