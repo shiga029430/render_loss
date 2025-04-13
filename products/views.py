@@ -1,10 +1,11 @@
+from datetime import date
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views import View
 from django.views.generic import TemplateView
 from django.core.management import call_command
 from django.db import transaction
 from django.db import models
-from .models import Product, CATEGORY_CHOICES
+from .models import Product, CATEGORY_CHOICES, Loss
 
 class ProductListView(View):
     def get(self, request, *args, **kwargs):
@@ -19,13 +20,18 @@ class ProductListView(View):
 
     def post(self, request, *args, **kwargs):
         products = Product.objects.all()
+        loss = Loss.objects.create(date=date.today())
         for product in products:
             quantity = request.POST.get(f'quantity_{product.id}')
             if quantity:
                 product.quantity = int(quantity)
+                product.save()
+                if product.quantity > 0:
+                    loss.products.add(product)
             else:
                 product.quantity = 0
             product.save()  # 数量を更新
+        print(loss)
         return redirect('products:product_display')
     
 

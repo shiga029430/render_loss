@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product
+from .models import Product, Loss
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
@@ -10,3 +10,18 @@ class ProductAdmin(admin.ModelAdmin):
         return obj.get_category_display()
 
     category_display.short_description = 'カテゴリ'  # 表示名を設定
+
+@admin.register(Loss)
+class LossAdmin(admin.ModelAdmin):
+    list_display = ('date', 'get_products', 'get_quantities')  # カスタムメソッドをlist_displayに追加
+
+    def get_products(self, obj):
+        return ", ".join([product.name for product in obj.products.all()])  # 関連する商品の名前を表示
+
+    get_products.short_description = '商品'
+
+    def get_quantities(self, obj):
+        # 中間テーブルを使用している場合、数量を取得するロジックを記述
+        return ", ".join([str(product.quantity) for product in obj.products.all()])
+
+    get_quantities.short_description = '数量'
