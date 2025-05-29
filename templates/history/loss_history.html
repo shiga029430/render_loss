@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}ロス履歴一覧{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    
+    <div class="row">
+        <div class="col-12">
+            <table class="table table-striped">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>日時</th>
+                        <th>アクション</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for loss in losses %}
+                    <tr>
+                        <td>{{ loss.date|date:"Y-m-d H:i" }}</td>
+                        <td>
+                            <a href="{% url 'history:loss_detail' loss.id %}" class="btn btn-info btn-sm">詳細を見る</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2">まだロス記録ないよ〜！お店閉まるとき記録してね！</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="mt-3">
+        <a href="{% url 'products:product_list' %}" class="btn btn-primary">カウント表に戻る</a>
+    </div>
+</div>
+{% endblock %}

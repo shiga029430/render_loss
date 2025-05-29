@@ -26,29 +26,58 @@
 {% endblock %}
 
 {% block content %}
+    {% if loss_record %}
+        {% comment %} <h2>ロス記録 ({{ loss_record.date|date:"Y-m-d H:i" }})</h2> {% endcomment %}
 
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th style="width:30%">カテゴリ</th>
-                <th style="width:40%">商品名</th>
-                <th style="width:30%">数量</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for product in products %}
+        <table class="table table-bordered">
+            <thead>
                 <tr>
-                    <td>{{ product.get_category_display }}</td>
-                    <td>{{ product.name }}</td>
-                    <td>{{ product.quantity }}</td>
+                    <th style="width:30%">カテゴリ</th>
+                    <th style="width:40%">商品名</th>
+                    <th style="width:30%">数量</th>
                 </tr>
-            {% empty %}
+            </thead>
+            <tbody>
+                {% for detail in loss_details %}
+                    <tr>
+                        <td>{{ detail.get_product_category_display }}</td>
+                        <td>{{ detail.product_name }}</td>
+                        <td>{{ detail.quantity }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3">ロスデータがないよ〜</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% elif products %}
+        <h2>今日のロス一覧</h2>
+        <table class="table table-bordered">
+            <thead>
                 <tr>
-                    <td colspan="3">今日のロスはありません。</td>
+                    <th style="width:30%">カテゴリ</th>
+                    <th style="width:40%">商品名</th>
+                    <th style="width:30%">数量</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                    <tr>
+                        <td>{{ product.get_category_display }}</td>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.quantity }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3">表示するデータがないよ〜</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>表示するデータがないよ！カウント入力してみてね！</p>
+    {% endif %}
 
     <a href="{% url 'products:product_list' %}" class="btn btn-info">商品リストに戻る</a>
 {% endblock %}

@@ -15,7 +15,6 @@ import os
 import environ
 from decouple import config
 import dj_database_url
-from dj_database_url import parse as dburl
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -46,6 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "app1", #暫定のapp名 app名決まったらここも変更する
     "products", #商品DB用app
+    "history",  #履歴確認用App
 ]
 
 MIDDLEWARE = [
@@ -62,8 +62,10 @@ MIDDLEWARE = [
 default_dburl = "sqlite:///" + os.path.join(BASE_DIR, "db.sqlite3")
 
 DATABASES = {
-    "default": config("DATABASE_URL", default=default_dburl, cast=dburl),
-    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+    'default': dj_database_url.config(
+        default='sqlite:///db.sqlite3',
+        conn_max_age=600
+    )
 }
 
 STATIC_URL = "/static/"
@@ -94,12 +96,12 @@ WSGI_APPLICATION = "render_test.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
 
 
 # Password validation
