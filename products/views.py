@@ -1,11 +1,11 @@
-from datetime import date
+from datetime import datetime
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views import View
 from django.views.generic import TemplateView
 from django.core.management import call_command
 from django.db import transaction
 from django.db import models
-from .models import Product, CATEGORY_CHOICES, Loss
+from .models import Product, CATEGORY_CHOICES, LossRecord, LossDetail
 
 class ProductListView(View):
     def get(self, request, *args, **kwargs):
@@ -19,19 +19,32 @@ class ProductListView(View):
         })
 
     def post(self, request, *args, **kwargs):
-        products = Product.objects.all()
-        loss = Loss.objects.create(date=date.today())
-        for product in products:
-            quantity = request.POST.get(f'quantity_{product.id}')
-            if quantity:
-                product.quantity = int(quantity)
-                product.save()
-                if product.quantity > 0:
-                    loss.products.add(product)
-            else:
-                product.quantity = 0
-            product.save()  # 数量を更新
-        print(loss)
+            # フォームからのデータでProduct.quantityを更新（これ足りないかも）
+        for key, value in request.POST.items():
+            if key.startswith('quantity_') and value:
+                product_id = key.split('_')[1]
+                try:
+                    product = Product.objects.get(id=product_id)
+                    product.quantity = int(value)
+                    product.save()
+                except (Product.DoesNotExist, ValueError):
+                    continue
+        # ロスレコード作成
+        loss_record = LossRecord.objects.create()
+        
+        # 数量が入力されている商品だけ記録
+        for product in Product.objects.all():
+            if product.quantity > 0:  # Productモデルに記録されたロス数を使う
+                LossDetail.objects.create(
+                    loss_record=loss_record,
+                    product_name=product.name,
+                    product_category=product.category,
+                    quantity=product.quantity
+                )
+                # ロス記録後はリセット(しない)
+                # product.quantity = 0
+                # product.save()
+        
         return redirect('products:product_display')
     
 
@@ -40,8 +53,17 @@ class ProductDisplayView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # 数量が1以上の商品をフィルタリングして表示
-        context['products'] = Product.objects.filter(quantity__gte=1).order_by('category', 'order')
+        # 最新のロスレコードを取得
+        latest_loss = LossRecord.objects.order_by('-date').first()
+        
+        if latest_loss:
+            # 最新ロスレコードの詳細を取得
+            context['loss_record'] = latest_loss
+            context['loss_details'] = latest_loss.details.all().order_by('product_category')
+        else:
+            # ロスレコードがない場合は通常通りProductの数量で表示
+            context['products'] = Product.objects.filter(quantity__gte=1).order_by('category', 'order')
+        
         return context
 
 class DisplayEditView(View):

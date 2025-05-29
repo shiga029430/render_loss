@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, Loss
+from .models import Product, LossRecord, LossDetail
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
@@ -11,9 +11,11 @@ class ProductAdmin(admin.ModelAdmin):
 
     category_display.short_description = 'カテゴリ'  # 表示名を設定
 
-@admin.register(Loss)
+@admin.register(LossRecord)
 class LossAdmin(admin.ModelAdmin):
-    list_display = ('date', 'get_products', 'get_quantities')  # カスタムメソッドをlist_displayに追加
+    list_display = ('date',)  # カスタムメソッドをlist_displayに追加
+    list_display_links = ('date',)  # リンクとして扱うフィールドを指定
+    # list_editable = ()  # 日付を編集可能に設定
 
     def get_products(self, obj):
         return ", ".join([product.name for product in obj.products.all()])  # 関連する商品の名前を表示
@@ -25,3 +27,5 @@ class LossAdmin(admin.ModelAdmin):
         return ", ".join([str(product.quantity) for product in obj.products.all()])
 
     get_quantities.short_description = '数量'
+    
+admin.site.register(LossDetail)
