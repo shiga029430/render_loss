@@ -93,8 +93,8 @@
                     <tr>
                         <th style="width:5%"></th>
                         <th style="width:35%">商品名</th>
-                        <th style="width:5%">並び順</th>
-                        <th style="width:55%">操作</th>
+                        <th style="width:20%">並び順</th>
+                        <th style="width:40%">操作</th>
                     </tr>
                 </thead>
                 <tbody class="sortable-list" data-category="{{ category_key }}">
@@ -104,13 +104,17 @@
                             <td>{{ product.name }}</td>
                             <td>
                                 {% comment %} {{ product.order }} {% endcomment %}
-                                <input type="number" name="orders[{{ product.id }}]" value="{{ product.order }}" class="order-input" min="1" readonly>
+                                <input type="number" name="orders[{{ product.id }}]" value="{{ product.order }}" class="order-input" min="1" readonly style="margin: 0 auto; display: block;">
                             </td>
                             <td>
                                 <button type="submit" name="action" value="up-{{ product.id }}" class="move-btn" {% if forloop.first %}disabled{% endif %}>↑</button>
                                 <button type="submit" name="action" value="down-{{ product.id }}" class="move-btn" {% if forloop.last %}disabled{% endif %}>↓</button>
                                 <button type="submit" name="action" value="delete-{{ product.id }}" class="delete-btn">削除</button>
                             </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4">登録商品なし</td>
                         </tr>
                     {% endfor %}
                 </tbody>
