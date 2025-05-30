@@ -1,11 +1,43 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>Index Page</title>
-</head>
-<body>
-    <h1>ようこそ、Djangoの世界へ！</h1>
-    <p>これはindexビューのテンプレートです。</p>
-</body>
-</html>
+{% extends 'base.html' %}
+{% block title %}TOP{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="display-4">ようこそ！</h1>
+            <p class="lead">これはトップページだよ！さあ、何する？</p>
+            <p class="lead">今できることは下の3つ！詳しい使い方は<a href="{% url 'howto'%}">HowToUse</a>から確認してね</p>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">ロスを登録</h5>
+                    <p class="card-text">その日のロスを登録できるよ！</p>
+                    <a href="{% url 'products:product_list'%}" class="btn btn-primary">見てみる</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">リストの編集</h5>
+                    <p class="card-text">商品の追加・削除，並べ替えができるよ！</p>
+                    <a href="{% url 'products:display_edit'%}" class="btn btn-primary">見てみる</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">ロス履歴の閲覧</h5>
+                    <p class="card-text">実際に送信されたロスを確認できるよ！</p>
+                    <a href="{% url 'history:loss_history'%}" class="btn btn-primary">見てみる</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

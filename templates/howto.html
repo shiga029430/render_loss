@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}使い方{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    
+    <!-- ロスの登録方法 -->
+    <div class="card mb-5">
+        <div class="card-header bg-success text-white">
+            <h3>ロスの登録方法🍞</h3>
+        </div>
+        <div class="card-body">
+            <ol>
+                <li class="mb-2">「List」を開く</li>
+                <li class="mb-2">ロスした商品の横にある「+1」「+5」ボタンで数を入れていく</li>
+                <li class="mb-2">間違えたら「-1」か「0」ボタンで直せるよ</li>
+                <li class="mb-2">全部入れ終わったら画面をスクロールして「<strong>送信</strong>」ボタンを押す！</li>
+                <li class="mb-2">送信したらロス記録完了！</li>
+            </ol>
+            
+            <div class="alert alert-warning">
+                <strong>注意⚠️</strong> 送信ボタン押すの忘れると全部消えちゃうから、絶対送信してね！
+            </div>
+        </div>
+    </div>
+    
+    <!-- 商品リストの編集方法 -->
+    <div class="card mb-5">
+        <div class="card-header bg-success text-white">
+            <h3>商品リストの編集方法📋</h3>
+        </div>
+        <div class="card-body">
+            <h4 class="mb-3">商品の並べ替え</h4>
+            <ol>
+                <li class="mb-2">「Edit」ページを開く</li>
+                <li class="mb-2">並べ替えたい商品を見つける</li>
+                <li class="mb-2">「上へ」「下へ」ボタンで動かせる</li>
+                <li class="mb-2">または商品のドラッグ＆ドロップでも並べ替えできるよ</li>
+                <li class="mb-2">画面右下の「順番を更新」ボタンを押すとTopページに反映されるよ</li>
+            </ol>
+
+            <h4 class="mb-3">商品の追加</h4>
+            <ol>
+                <li class="mb-2">「Edit」ページを開く</li>
+                <li class="mb-2">追加したいカテゴリの追加ボタンを押す</li>
+                <li class="mb-2">新しい商品名を入力</li>
+                <li class="mb-2">「追加」ボタンでOK！</li>
+            </ol>
+            
+            
+            <h4 class="mb-3">商品の削除</h4>
+            <ol>
+                <li class="mb-2">「Edit」ページを開く</li>
+                <li class="mb-2">削除したい商品の「削除」ボタンを押す</li>
+                <li class="mb-2">「削除する？」って聞かれるから「OK」すれば消えるよ！</li>
+            </ol>
+        </div>
+    </div>
+
+        <!-- 過去のロスの確認方法 -->
+    <div class="card mb-5">
+        <div class="card-header bg-success text-white">
+            <h3>過去のロスの確認方法🍞</h3>
+        </div>
+        <div class="card-body">
+            <ol>
+                {% comment %} <li class="mb-2">トップページの「カウント表」を開く</li> {% endcomment %}
+                <li class="mb-2">Historyを開く</li>
+                <li class="mb-2">確認したい日の｢詳細を見る｣ボタンを押す</li>
+                <li class="mb-2">その日に送信されたロスが確認できるよ！</li>
+                {% comment %} <li class="mb-2">送信したらロス記録完了！</li> {% endcomment %}
+            </ol>
+        </div>
+    </div>
+
+    
+    {% comment %} <div class="text-center mb-4">
+        <a href="{% url 'products:product_list' %}" class="btn btn-primary btn-lg">カウント表に戻る</a>
+    </div> {% endcomment %}
+</div>
+{% endblock %}
