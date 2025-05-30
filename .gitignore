@@ -6,6 +6,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 build_local.sh
+*_old.*
 
 
 # C extensions
