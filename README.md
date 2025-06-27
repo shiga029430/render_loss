@@ -44,3 +44,11 @@
 
 #### v1.2.1(2025.05.30)
 サービスとしての運用を見据え，TOPページと使い方のページを追加
+
+
+***
+### リンク
+- Site
+  - https://django-render-szh6.onrender.com/
+- Render Dashboard
+  - https://dashboard.render.com/web/srv-cvba4iofnakc73dit72g
