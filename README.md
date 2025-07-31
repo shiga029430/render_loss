@@ -52,3 +52,4 @@
   - https://django-render-szh6.onrender.com/
 - Render Dashboard
   - https://dashboard.render.com/web/srv-cvba4iofnakc73dit72g
+   - (RenderのDB有効期限が切れた場合は`environment`->`database URL`を新しいinternal URLに変えるだけでOK)
